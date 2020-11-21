@@ -18,11 +18,11 @@ pip install sklearn
 ```
 
 ## Baseline Prediction
-> #### Baseline function
-> - Prediction: One Step (next trading day)
-> - Activation Function: Linear 
-> - Lookback Period: One year
-> - Steps: 70
+#### Baseline Function
+- Prediction: One Step (next trading day)
+- Activation Function: Linear 
+- Lookback Period: One year
+- Steps: 70
 
 ![one-step](https://raw.githubusercontent.com/DestrosCMC/Forecasting-SPY/main/assets/base/oneStep.png)
 #### Output:
