@@ -2,7 +2,7 @@
 Using a Long Short-Term Memory (LSTM) Recurrent Neural Network (RNN) to forecast the price of the S&amp;P 500 index
 
 ## Data
-No external data download is needed, courtesy of the [yfinance](https://pypi.org/project/yfinance/) library.\ 
+No external data download is needed, courtesy of the [yfinance](https://pypi.org/project/yfinance/) library.   
 The baseline model only uses OHLCV data.
 
 ## Installing Libraries
