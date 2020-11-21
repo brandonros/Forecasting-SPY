@@ -1,2 +1,36 @@
 # Forecasting-SPY
 Using a Long Short-Term Memory (LSTM) Recurrent Neural Network (RNN) to forecast the price of the S&amp;P 500 index
+
+## Data
+No external data download is needed, courtesy of the [yfinance](https://pypi.org/project/yfinance/) library. 
+The baseline model only uses OHLCV data.
+
+## Installing Libraries
+Make sure you satisfy the system requirements and are using the correct python version before downloading. 
+```python
+pip install numpy
+pip install pandas
+pip install matplotlib
+pip install yfinance
+pip install tensorflow
+pip install keras
+pip install sklearn
+```
+
+## Baseline Prediction
+> #### Baseline function
+> - Prediction: One Step (next trading day)
+> - Activation Function: Linear 
+> - Lookback Period: One year
+> - Steps: 70
+
+![one-step](https://raw.githubusercontent.com/DestrosCMC/Forecasting-SPY/main/assets/base/oneStep.png)
+#### Output:
+```
+Mean Absolute Error: 226.74624230089194
+Future price after 1 days is 362.72$
+1: Accuracy Score: 0.5555555555555556
+```
+### Interpretation:
+The accuracy score of the one step prediction model is 55.6%. This is a 5.6% improvement over the 50% chance the price of the SPY goes up or down.\
+This is a substantial improvement, but as I will show in later excercises the longer the forecast window (e.g. 1 month) the more accurate a prediction.
