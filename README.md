@@ -34,3 +34,7 @@ Future price after 1 days is 362.72$
 ### Interpretation:
 The accuracy score of the one step prediction model is 55.6%. This is a 5.6% improvement over the 50% chance the price of the SPY goes up or down.\
 This is a substantial improvement, but as I will show in later excercises the longer the forecast window (e.g. 1 month) the more accurate a prediction.
+
+### Inspiration:
+[Price Prediction Tutorial](https://www.thepythoncode.com/article/stock-price-prediction-in-python-using-tensorflow-2-and-keras)\
+Thank you to PythonCode for many of the functions used in this educational model. 
