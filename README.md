@@ -8,13 +8,7 @@ The baseline model only uses OHLCV data.
 ## Installing Libraries
 Make sure you satisfy the system requirements and are using the correct python version before downloading. 
 ```python
-pip install numpy
-pip install pandas
-pip install matplotlib
-pip install yfinance
-pip install tensorflow
-pip install keras
-pip install sklearn
+pip install -r requirements.txt
 ```
 
 ## Baseline Prediction
