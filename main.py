@@ -15,13 +15,6 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
 import yfinance as yf
 
-#try changing around the optimizer
-
-# Reproducability
-np.random.seed(42)
-tf.random.set_seed(42)
-random.seed(42)
-
 #units = neurons
 def load_data(ticker, period, interval, n_steps=50, scale=True, shuffle=True, lookup_step=1, test_size=.2,
               feature_columns=['Close', 'Volume', 'Open', 'High', 'Low']):
@@ -121,6 +114,48 @@ def create_model(sequence_length, units=256, cell=LSTM, n_layers=2, dropout=0.3,
     model.compile(loss=loss, metrics=["mean_absolute_error"], optimizer=optimizer)
     return model
 
+def predict(model, data):
+    last_sequence = data["last_sequence"][-N_STEPS:]
+    column_scaler = data["column_scaler"]
+    last_sequence = last_sequence.reshape((last_sequence.shape[1], last_sequence.shape[0]))
+    last_sequence = np.expand_dims(last_sequence, axis=0)
+    # get the prediction (scaled from 0 to 1)
+    prediction = model.predict(last_sequence)
+    # get the price (by inverting the scaling)
+    predicted_price = column_scaler["Close"].inverse_transform(prediction)[0][0]
+    return predicted_price
+
+def plot_graph(model, data):
+    y_test = data["y_test"]
+    X_test = data["X_test"]
+    y_pred = model.predict(X_test)
+    y_test = np.squeeze(data["column_scaler"]["Close"].inverse_transform(np.expand_dims(y_test, axis=0)))
+    y_pred = np.squeeze(data["column_scaler"]["Close"].inverse_transform(y_pred))
+    # currently last 200 days
+    plt.plot(y_test[-200:], c='b')
+    plt.plot(y_pred[-200:], c='r')
+    plt.xlabel("Days")
+    plt.ylabel("Price")
+    plt.legend(["Actual Price", "Predicted Price"])
+    plt.show()
+
+def accuracy(model, data):
+    y_test = data["y_test"]
+    X_test = data["X_test"]
+    y_pred = model.predict(X_test)
+    y_test = np.squeeze(data["column_scaler"]["Close"].inverse_transform(np.expand_dims(y_test, axis=0)))
+    y_pred = np.squeeze(data["column_scaler"]["Close"].inverse_transform(y_pred))
+    y_pred = list(map(lambda current, future: int(float(future) > float(current)), y_test[:-LOOKUP_STEP], y_pred[LOOKUP_STEP:]))
+    y_test = list(map(lambda current, future: int(float(future) > float(current)), y_test[:-LOOKUP_STEP], y_test[LOOKUP_STEP:]))
+    return accuracy_score(y_test, y_pred)
+
+#try changing around the optimizer
+
+# Reproducability
+np.random.seed(42)
+tf.random.set_seed(42)
+random.seed(42)
+
 N_STEPS = 70
 # valid periods: 1d,5d,1mo,3mo,6mo,1y,2y,5y,10y,ytd,max
 PERIOD = '1y'
@@ -201,45 +236,10 @@ mse, mae = model.evaluate(data["X_test"], data["y_test"], verbose=0)
 mean_absolute_error = data["column_scaler"]["Close"].inverse_transform([[mae]])[0][0]
 print("Mean Absolute Error:", mean_absolute_error)
 
-def predict(model, data):
-    last_sequence = data["last_sequence"][-N_STEPS:]
-    column_scaler = data["column_scaler"]
-    last_sequence = last_sequence.reshape((last_sequence.shape[1], last_sequence.shape[0]))
-    last_sequence = np.expand_dims(last_sequence, axis=0)
-    # get the prediction (scaled from 0 to 1)
-    prediction = model.predict(last_sequence)
-    # get the price (by inverting the scaling)
-    predicted_price = column_scaler["Close"].inverse_transform(prediction)[0][0]
-    return predicted_price
-
 # predict the future price
 future_price = predict(model, data)
 print(f"Future price after {LOOKUP_STEP} days is {future_price:.2f}$")
 
-def plot_graph(model, data):
-    y_test = data["y_test"]
-    X_test = data["X_test"]
-    y_pred = model.predict(X_test)
-    y_test = np.squeeze(data["column_scaler"]["Close"].inverse_transform(np.expand_dims(y_test, axis=0)))
-    y_pred = np.squeeze(data["column_scaler"]["Close"].inverse_transform(y_pred))
-    # currently last 200 days
-    plt.plot(y_test[-200:], c='b')
-    plt.plot(y_pred[-200:], c='r')
-    plt.xlabel("Days")
-    plt.ylabel("Price")
-    plt.legend(["Actual Price", "Predicted Price"])
-    plt.show()
-
 plot_graph(model, data)
-
-def accuracy(model, data):
-    y_test = data["y_test"]
-    X_test = data["X_test"]
-    y_pred = model.predict(X_test)
-    y_test = np.squeeze(data["column_scaler"]["Close"].inverse_transform(np.expand_dims(y_test, axis=0)))
-    y_pred = np.squeeze(data["column_scaler"]["Close"].inverse_transform(y_pred))
-    y_pred = list(map(lambda current, future: int(float(future) > float(current)), y_test[:-LOOKUP_STEP], y_pred[LOOKUP_STEP:]))
-    y_test = list(map(lambda current, future: int(float(future) > float(current)), y_test[:-LOOKUP_STEP], y_test[LOOKUP_STEP:]))
-    return accuracy_score(y_test, y_pred)
 
 print(str(LOOKUP_STEP) + ":", "Accuracy Score:", accuracy(model, data))
